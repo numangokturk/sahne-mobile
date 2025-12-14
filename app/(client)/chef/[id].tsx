@@ -38,7 +38,7 @@ import {
   Shadow,
 } from '@/src/constants';
 
-const COVER_HEIGHT = 200;
+const COVER_HEIGHT = 280;
 const PROFILE_SIZE = 100;
 
 export default function ChefDetailScreen() {
@@ -203,7 +203,7 @@ export default function ChefDetailScreen() {
       <ScrollView
         ref={scrollViewRef}
         style={styles.scrollView}
-        contentContainerStyle={{ paddingBottom: 150 }}
+        contentContainerStyle={{ paddingBottom: 24 }}
         showsVerticalScrollIndicator={false}
       >
         {/* Cover Image */}
@@ -336,6 +336,27 @@ export default function ChefDetailScreen() {
           ))}
         </View>
 
+        {/* Reserve Now Section */}
+        <View style={styles.reserveSection}>
+          {selectedPackage && (
+            <Text style={styles.selectedPackageText}>
+              Selected: {selectedPackage.display_name}
+            </Text>
+          )}
+          <TouchableOpacity
+            style={[
+              styles.reserveButton,
+              !selectedPackage && styles.reserveButtonDisabled,
+            ]}
+            onPress={handleBookNow}
+            disabled={!selectedPackage}
+          >
+            <Text style={styles.reserveButtonText}>
+              {selectedPackage ? 'Reserve Now' : 'Select a Package'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
         {/* Photo Gallery */}
         {chef.media.length > 0 && (
           <View style={styles.section}>
@@ -443,27 +464,6 @@ export default function ChefDetailScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
-
-      {/* Fixed Book Now Button */}
-      <View style={[styles.bookNowContainer, { paddingBottom: insets.bottom + 12 }]}>
-        {selectedPackage && (
-          <Text style={styles.selectedPackageText}>
-            Selected: {selectedPackage.display_name}
-          </Text>
-        )}
-        <TouchableOpacity
-          style={[
-            styles.bookNowButton,
-            !selectedPackage && styles.bookNowButtonDisabled,
-          ]}
-          onPress={handleBookNow}
-          disabled={!selectedPackage}
-        >
-          <Text style={styles.bookNowText}>
-            {selectedPackage ? 'Reserve Now' : 'Select a Package'}
-          </Text>
-        </TouchableOpacity>
-      </View>
     </View>
   );
 }
@@ -511,6 +511,7 @@ const styles = StyleSheet.create({
   coverImage: {
     width: '100%',
     height: '100%',
+    resizeMode: 'cover',
   },
   coverPlaceholder: {
     backgroundColor: Colors.surface,
@@ -787,38 +788,35 @@ const styles = StyleSheet.create({
     lineHeight: FontSize.bodySmall * 1.5,
     letterSpacing: LetterSpacing.normal,
   },
-  bookNowContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: Colors.background,
-    borderTopWidth: 1,
-    borderTopColor: Colors.border,
-    paddingTop: 12,
+  reserveSection: {
     paddingHorizontal: 20,
-    ...Shadow.lg,
+    paddingVertical: Spacing.lg,
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.xl,
+    marginHorizontal: 20,
+    marginBottom: Spacing.md,
+    ...Shadow.md,
   },
   selectedPackageText: {
     fontFamily: FontFamily.body,
-    fontSize: FontSize.caption,
+    fontSize: FontSize.bodySmall,
     fontWeight: FontWeight.medium,
     color: Colors.textSecondary,
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: Spacing.sm,
     letterSpacing: LetterSpacing.normal,
   },
-  bookNowButton: {
+  reserveButton: {
     backgroundColor: Colors.primary,
     borderRadius: BorderRadius.md,
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  bookNowButtonDisabled: {
+  reserveButtonDisabled: {
     backgroundColor: Colors.disabled,
   },
-  bookNowText: {
+  reserveButtonText: {
     fontFamily: FontFamily.body,
     fontSize: FontSize.button,
     fontWeight: FontWeight.semibold,

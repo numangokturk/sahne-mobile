@@ -64,7 +64,8 @@ export default function ClientLayout() {
       <Tabs.Screen
         name="chef"
         options={{
-          href: null, // Hide from tab bar
+          href: null,
+          tabBarButton: () => null,
         }}
       />
     </Tabs>
