@@ -51,11 +51,14 @@ export default function LoginScreen() {
   const handleLogin = async () => {
     if (!validateForm()) return;
 
+    console.log('🔐 Login attempt:', { email });
     setLoading(true);
     try {
       await login({ email, password });
+      console.log('✅ Login successful');
       // Navigation is handled by AuthContext and splash screen
     } catch (error) {
+      console.error('❌ Login error:', error);
       const apiError = error as ApiError;
       Alert.alert(
         'Login Failed',

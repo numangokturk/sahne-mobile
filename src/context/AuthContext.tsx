@@ -51,7 +51,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const login = async (credentials: LoginRequest) => {
     try {
+      console.log('📡 Calling auth API...');
       const response = await authService.login(credentials);
+      console.log('📦 Auth response received:', {
+        hasToken: !!response.access_token,
+        hasUser: !!response.user,
+        userRole: response.user?.role,
+      });
 
       // Save token and user data
       await AsyncStorage.setItem(
@@ -63,8 +69,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         JSON.stringify(response.user)
       );
 
+      console.log('💾 Token and user saved to storage');
       setUser(response.user);
+      console.log('👤 User state updated');
     } catch (error) {
+      console.error('🚨 Auth error:', error);
       throw error;
     }
   };
