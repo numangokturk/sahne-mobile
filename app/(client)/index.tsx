@@ -1,135 +1,149 @@
 /**
- * SAHNE - Client Home Screen (Chef List)
+ * SAHNE - Home Dashboard
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  FlatList,
-  RefreshControl,
+  ScrollView,
   TouchableOpacity,
   SafeAreaView,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useAuth } from '@/src/context';
 import { chefsService } from '@/src/services';
 import { Chef, ApiError } from '@/src/types';
 import { ChefCard } from '@/src/components/chef';
-import { Input, ChefListSkeleton, EmptyState } from '@/src/components/ui';
-import { Colors, FontFamily, FontSize, FontWeight, Spacing } from '@/src/constants';
+import { Colors, FontFamily, FontSize, FontWeight, Spacing, BorderRadius } from '@/src/constants';
 
-export default function ClientHomeScreen() {
-  const { user, logout } = useAuth();
-  const [chefs, setChefs] = useState<Chef[]>([]);
+const CATEGORIES = [
+  { id: 1, name: 'Turkish', icon: '🇹🇷', specialty: 'Turkish' },
+  { id: 2, name: 'Italian', icon: '🇮🇹', specialty: 'Italian' },
+  { id: 3, name: 'Japanese', icon: '🇯🇵', specialty: 'Japanese' },
+  { id: 4, name: 'French', icon: '🇫🇷', specialty: 'French' },
+];
+
+export default function HomeScreen() {
+  const { user } = useAuth();
+  const router = useRouter();
+  const [popularChefs, setPopularChefs] = useState<Chef[]>([]);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchChefs = useCallback(async (isRefreshing = false) => {
-    try {
-      if (!isRefreshing) setLoading(true);
-      setError(null);
-
-      console.log('📡 Fetching chefs...');
-      const response = await chefsService.getChefs({
-        search: searchQuery || undefined,
-      });
-
-      console.log('✅ Chefs fetched:', response.data.length);
-      setChefs(response.data);
-    } catch (err) {
-      console.error('❌ Error fetching chefs:', err);
-      const apiError = err as ApiError;
-      setError(apiError.message || 'Failed to load chefs');
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, [searchQuery]);
 
   useEffect(() => {
-    fetchChefs();
+    fetchPopularChefs();
   }, []);
 
-  const handleRefresh = () => {
-    setRefreshing(true);
-    fetchChefs(true);
+  const fetchPopularChefs = async () => {
+    try {
+      setLoading(true);
+      const response = await chefsService.getChefs();
+      // Get top 3 chefs by rating
+      const topChefs = response.data
+        .sort((a, b) => b.rating - a.rating)
+        .slice(0, 3);
+      setPopularChefs(topChefs);
+    } catch (err) {
+      console.error('❌ Error fetching popular chefs:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSearch = () => {
-    fetchChefs();
+  const handleCategoryPress = (category: typeof CATEGORIES[0]) => {
+    // Navigate to explore with filter
+    router.push('/explore');
+  };
+
+  const handleViewAllChefs = () => {
+    router.push('/explore');
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerTop}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Welcome Header */}
+        <View style={styles.header}>
           <View>
             <Text style={styles.greeting}>Welcome back,</Text>
-            <Text style={styles.userName}>{user?.name}!</Text>
+            <Text style={styles.userName}>{user?.name}! 👋</Text>
           </View>
-          <TouchableOpacity onPress={logout} style={styles.logoutButton}>
-            <Text style={styles.logoutText}>Logout</Text>
-          </TouchableOpacity>
         </View>
 
-        {/* Search */}
-        <View style={styles.searchContainer}>
-          <Input
-            placeholder="Search chefs..."
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            onSubmitEditing={handleSearch}
-            returnKeyType="search"
-          />
+        {/* Upcoming Reservation Card (Placeholder) */}
+        <View style={styles.section}>
+          <View style={styles.upcomingCard}>
+            <Text style={styles.upcomingIcon}>📅</Text>
+            <View style={styles.upcomingContent}>
+              <Text style={styles.upcomingTitle}>No Upcoming Reservations</Text>
+              <Text style={styles.upcomingText}>
+                Book your first luxury chef experience
+              </Text>
+            </View>
+          </View>
         </View>
-      </View>
 
-      {/* Chef List */}
-      {loading && !refreshing ? (
-        <View style={styles.content}>
-          <ChefListSkeleton />
+        {/* Categories */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Categories</Text>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.categoriesContainer}
+          >
+            {CATEGORIES.map((category) => (
+              <TouchableOpacity
+                key={category.id}
+                style={styles.categoryCard}
+                onPress={() => handleCategoryPress(category)}
+              >
+                <Text style={styles.categoryIcon}>{category.icon}</Text>
+                <Text style={styles.categoryName}>{category.name}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
         </View>
-      ) : error ? (
-        <View style={styles.content}>
-          <EmptyState
-            icon="⚠️"
-            title="Oops!"
-            description={error}
-          />
+
+        {/* Popular Chefs */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Popular Chefs</Text>
+            <TouchableOpacity onPress={handleViewAllChefs}>
+              <Text style={styles.viewAllText}>View All</Text>
+            </TouchableOpacity>
+          </View>
+
+          {loading ? (
+            <Text style={styles.loadingText}>Loading...</Text>
+          ) : popularChefs.length > 0 ? (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.chefsContainer}
+            >
+              {popularChefs.map((chef) => (
+                <View key={chef.id} style={styles.chefCardContainer}>
+                  <ChefCard chef={chef} />
+                </View>
+              ))}
+            </ScrollView>
+          ) : (
+            <Text style={styles.noDataText}>No chefs available</Text>
+          )}
         </View>
-      ) : chefs.length === 0 ? (
-        <View style={styles.content}>
-          <EmptyState
-            icon="👨‍🍳"
-            title="No Chefs Found"
-            description={
-              searchQuery
-                ? 'Try adjusting your search terms'
-                : 'No chefs available at the moment'
-            }
-          />
-        </View>
-      ) : (
-        <FlatList
-          data={chefs}
-          renderItem={({ item }) => <ChefCard chef={item} />}
-          keyExtractor={(item) => item.id.toString()}
-          contentContainerStyle={styles.listContent}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={handleRefresh}
-              tintColor={Colors.primary}
-              colors={[Colors.primary]}
-            />
-          }
-          showsVerticalScrollIndicator={false}
-        />
-      )}
+
+        {/* View All Chefs Button */}
+        <TouchableOpacity
+          style={styles.viewAllButton}
+          onPress={handleViewAllChefs}
+        >
+          <Text style={styles.viewAllButtonText}>View All Chefs</Text>
+        </TouchableOpacity>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -139,17 +153,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
-  header: {
-    backgroundColor: Colors.surface,
-    paddingHorizontal: Spacing.lg,
-    paddingTop: Spacing.md,
-    paddingBottom: Spacing.md,
+  scrollContent: {
+    paddingBottom: Spacing.xxl,
   },
-  headerTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: Spacing.md,
+  header: {
+    paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.lg,
+    paddingBottom: Spacing.md,
+    backgroundColor: Colors.surface,
   },
   greeting: {
     fontFamily: FontFamily.body,
@@ -158,28 +169,114 @@ const styles = StyleSheet.create({
   },
   userName: {
     fontFamily: FontFamily.heading,
-    fontSize: FontSize.h3,
+    fontSize: FontSize.h2,
     fontWeight: FontWeight.bold,
     color: Colors.textPrimary,
   },
-  logoutButton: {
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
+  section: {
+    marginTop: Spacing.lg,
+    paddingHorizontal: Spacing.lg,
   },
-  logoutText: {
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.md,
+  },
+  sectionTitle: {
+    fontFamily: FontFamily.heading,
+    fontSize: FontSize.h4,
+    fontWeight: FontWeight.bold,
+    color: Colors.textPrimary,
+  },
+  viewAllText: {
     fontFamily: FontFamily.body,
     fontSize: FontSize.bodySmall,
     color: Colors.primary,
     fontWeight: FontWeight.semibold,
   },
-  searchContainer: {
-    marginBottom: 0,
+  upcomingCard: {
+    flexDirection: 'row',
+    backgroundColor: Colors.primaryLight,
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.lg,
+    alignItems: 'center',
   },
-  content: {
+  upcomingIcon: {
+    fontSize: 48,
+    marginRight: Spacing.md,
+  },
+  upcomingContent: {
     flex: 1,
-    padding: Spacing.lg,
   },
-  listContent: {
+  upcomingTitle: {
+    fontFamily: FontFamily.heading,
+    fontSize: FontSize.bodyLarge,
+    fontWeight: FontWeight.bold,
+    color: Colors.primaryDark,
+    marginBottom: Spacing.xs,
+  },
+  upcomingText: {
+    fontFamily: FontFamily.body,
+    fontSize: FontSize.bodySmall,
+    color: Colors.textSecondary,
+  },
+  categoriesContainer: {
+    paddingRight: Spacing.lg,
+  },
+  categoryCard: {
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.xl,
     padding: Spacing.lg,
+    marginRight: Spacing.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 100,
+    height: 100,
+  },
+  categoryIcon: {
+    fontSize: 32,
+    marginBottom: Spacing.sm,
+  },
+  categoryName: {
+    fontFamily: FontFamily.body,
+    fontSize: FontSize.bodySmall,
+    fontWeight: FontWeight.semibold,
+    color: Colors.textPrimary,
+  },
+  chefsContainer: {
+    paddingRight: Spacing.lg,
+  },
+  chefCardContainer: {
+    width: 300,
+    marginRight: Spacing.md,
+  },
+  loadingText: {
+    fontFamily: FontFamily.body,
+    fontSize: FontSize.bodyMedium,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    paddingVertical: Spacing.xl,
+  },
+  noDataText: {
+    fontFamily: FontFamily.body,
+    fontSize: FontSize.bodyMedium,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    paddingVertical: Spacing.xl,
+  },
+  viewAllButton: {
+    backgroundColor: Colors.primary,
+    marginHorizontal: Spacing.lg,
+    marginTop: Spacing.xl,
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.lg,
+    alignItems: 'center',
+  },
+  viewAllButtonText: {
+    fontFamily: FontFamily.body,
+    fontSize: FontSize.button,
+    fontWeight: FontWeight.semibold,
+    color: Colors.white,
   },
 });

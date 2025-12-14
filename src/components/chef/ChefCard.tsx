@@ -24,9 +24,9 @@ export const ChefCard: React.FC<ChefCardProps> = ({ chef }) => {
   };
 
   // Calculate starting price from packages
-  const startingPrice = chef.packages?.length
+  const startingPrice = chef.packages && chef.packages.length > 0
     ? Math.min(...chef.packages.map((p) => p.price))
-    : 0;
+    : null;
 
   return (
     <TouchableOpacity
@@ -65,9 +65,11 @@ export const ChefCard: React.FC<ChefCardProps> = ({ chef }) => {
         </Text>
 
         {/* Experience */}
-        <Text style={styles.experience}>
-          {chef.experience_years} years of experience
-        </Text>
+        {chef.experience_years > 0 && (
+          <Text style={styles.experience}>
+            {chef.experience_years} year{chef.experience_years !== 1 ? 's' : ''} of experience
+          </Text>
+        )}
 
         {/* Specialties */}
         {chef.specialties && chef.specialties.length > 0 && (
@@ -89,9 +91,11 @@ export const ChefCard: React.FC<ChefCardProps> = ({ chef }) => {
 
         {/* Price and Reviews */}
         <View style={styles.footer}>
-          <Text style={styles.price}>
-            From {format.price(startingPrice)}
-          </Text>
+          {startingPrice !== null && startingPrice > 0 && (
+            <Text style={styles.price}>
+              From {format.price(startingPrice)}
+            </Text>
+          )}
           {chef.total_reviews > 0 && (
             <Text style={styles.reviews}>
               {chef.total_reviews} review{chef.total_reviews !== 1 ? 's' : ''}

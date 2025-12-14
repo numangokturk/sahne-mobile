@@ -3,18 +3,38 @@
  * Initial loading screen with logo animation
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, Animated } from 'react-native';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '@/src/context';
 import { Logo } from '@/src/components/ui';
-import { Colors, Spacing } from '@/src/constants';
+import { Colors, Spacing, Config } from '@/src/constants';
 
 export default function SplashScreen() {
   const router = useRouter();
   const { isLoading, isAuthenticated, user } = useAuth();
+  const [onboardingChecked, setOnboardingChecked] = useState(false);
+  const [onboardingCompleted, setOnboardingCompleted] = useState(false);
   const fadeAnim = new Animated.Value(0);
   const scaleAnim = new Animated.Value(0.8);
+
+  // Check onboarding status
+  useEffect(() => {
+    const checkOnboarding = async () => {
+      try {
+        const completed = await AsyncStorage.getItem(
+          Config.STORAGE_KEYS.ONBOARDING_COMPLETED
+        );
+        setOnboardingCompleted(completed === 'true');
+      } catch (error) {
+        console.error('Error checking onboarding:', error);
+      } finally {
+        setOnboardingChecked(true);
+      }
+    };
+    checkOnboarding();
+  }, []);
 
   useEffect(() => {
     // Animate logo
@@ -34,7 +54,7 @@ export default function SplashScreen() {
   }, []);
 
   useEffect(() => {
-    if (!isLoading) {
+    if (!isLoading && onboardingChecked) {
       // Navigate after animation completes
       setTimeout(() => {
         if (isAuthenticated && user) {
@@ -44,13 +64,16 @@ export default function SplashScreen() {
           } else {
             router.replace('/(client)');
           }
+        } else if (!onboardingCompleted) {
+          // Show onboarding for first-time users
+          router.replace('/(auth)/onboarding');
         } else {
           router.replace('/(auth)/login');
         }
       }, 1500);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading, isAuthenticated, user]);
+  }, [isLoading, isAuthenticated, user, onboardingChecked, onboardingCompleted]);
 
   return (
     <View style={styles.container}>
