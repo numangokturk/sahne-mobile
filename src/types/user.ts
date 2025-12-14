@@ -16,8 +16,10 @@ export interface User {
 }
 
 export interface AuthTokens {
-  token: string;
+  access_token: string;
+  token_type: string;
   user: User;
+  message?: string;
 }
 
 export interface LoginRequest {

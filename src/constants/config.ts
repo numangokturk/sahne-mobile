@@ -4,7 +4,8 @@
 
 export const Config = {
   // API Configuration
-  API_BASE_URL: 'https://sahne.test/api',
+  // NOTE: ngrok URL changes on every restart - update this when needed
+  API_BASE_URL: 'https://pyrheliometric-unsarcastical-harriette.ngrok-free.dev/api',
   API_TIMEOUT: 30000, // 30 seconds
 
   // Storage Keys

@@ -56,7 +56,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       // Save token and user data
       await AsyncStorage.setItem(
         Config.STORAGE_KEYS.AUTH_TOKEN,
-        response.token
+        response.access_token
       );
       await AsyncStorage.setItem(
         Config.STORAGE_KEYS.USER_DATA,
@@ -76,7 +76,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       // Save token and user data
       await AsyncStorage.setItem(
         Config.STORAGE_KEYS.AUTH_TOKEN,
-        response.token
+        response.access_token
       );
       await AsyncStorage.setItem(
         Config.STORAGE_KEYS.USER_DATA,
