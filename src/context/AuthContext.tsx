@@ -5,6 +5,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter, useSegments } from 'expo-router';
 import { authService } from '@/src/services';
 import { User, LoginRequest, RegisterRequest } from '@/src/types';
 import { Config } from '@/src/constants';
@@ -26,11 +27,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+  const segments = useSegments();
 
   // Check for existing auth token on mount
   useEffect(() => {
     checkAuthStatus();
   }, []);
+
+  // Handle navigation based on auth state
+  useEffect(() => {
+    if (isLoading) return;
+
+    const inAuthGroup = segments[0] === '(auth)';
+
+    if (!user && !inAuthGroup) {
+      // Redirect to login if not authenticated
+      router.replace('/(auth)/login');
+    } else if (user && inAuthGroup) {
+      // Redirect to appropriate home screen if authenticated
+      if (user.role === 'chef') {
+        router.replace('/(chef)');
+      } else {
+        router.replace('/(client)');
+      }
+    }
+  }, [user, segments, isLoading]);
 
   const checkAuthStatus = async () => {
     try {
@@ -100,14 +122,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const logout = async () => {
     try {
-      await authService.logout();
+      const token = await AsyncStorage.getItem(Config.STORAGE_KEYS.AUTH_TOKEN);
+      // Only call API if we have a token
+      if (token) {
+        await authService.logout();
+      }
     } catch (error) {
       console.error('Logout error:', error);
+      // Ignore API errors during logout
     } finally {
-      // Clear local data even if API call fails
+      // Always clear local data
       await AsyncStorage.removeItem(Config.STORAGE_KEYS.AUTH_TOKEN);
       await AsyncStorage.removeItem(Config.STORAGE_KEYS.USER_DATA);
       setUser(null);
+      console.log('🚪 Logged out, local storage cleared');
     }
   };
 

@@ -55,8 +55,9 @@ export default function LoginScreen() {
     setLoading(true);
     try {
       await login({ email, password });
-      console.log('✅ Login successful');
-      // Navigation is handled by AuthContext and splash screen
+      console.log('✅ Login successful, navigating...');
+      // Don't set loading to false, let navigation happen
+      // The screen will unmount during navigation
     } catch (error) {
       console.error('❌ Login error:', error);
       const apiError = error as ApiError;
@@ -64,7 +65,6 @@ export default function LoginScreen() {
         'Login Failed',
         apiError.message || 'Invalid credentials. Please try again.'
       );
-    } finally {
       setLoading(false);
     }
   };
