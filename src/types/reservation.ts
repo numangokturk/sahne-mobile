@@ -45,11 +45,35 @@ export interface Reservation {
   };
 }
 
+export type AddressType = 'home' | 'hotel' | 'villa' | 'other';
+
 export interface CreateReservationRequest {
-  chef_id: number;
-  package_id: number;
-  reservation_date: string;
+  chef_profile_id: number;
+  experience_package_id: number;
+  date: string; // date-time format
+  time: string;
   guest_count: number;
   address: string;
-  special_requests?: string;
+  address_type: AddressType;
+  allergies?: string;
+  dietary_notes?: string;
+  special_occasion?: string;
+}
+
+// Reservation data for passing between screens
+export interface ReservationFormData {
+  chefId: number;
+  chefName: string;
+  chefPhoto?: string;
+  packageId: number;
+  packageName: string;
+  packagePrice: number;
+  date?: string;
+  time?: string;
+  guestCount?: number;
+  eventType?: string;
+  specialRequests?: string;
+  dietaryRestrictions?: string[];
+  address?: string;
+  addressType?: AddressType;
 }

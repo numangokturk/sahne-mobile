@@ -138,12 +138,23 @@ export default function ChefDetailScreen() {
   };
 
   const handleBookNow = () => {
-    if (!selectedPackage) {
+    if (!selectedPackage || !chef) {
       alert('Please select a package');
       return;
     }
-    // TODO: Navigate to reservation flow (Phase 4)
-    console.log('Book now with package:', selectedPackage.id);
+
+    // Navigate to reservation date selection
+    router.push({
+      pathname: '/(client)/reservation/date',
+      params: {
+        chefId: chef.id.toString(),
+        chefName: chef.user.name,
+        chefPhoto: chef.profile_image,
+        packageId: selectedPackage.id.toString(),
+        packageName: selectedPackage.display_name,
+        packagePrice: selectedPackage.price_per_person.toString(),
+      },
+    });
   };
 
   const scrollToReviews = () => {

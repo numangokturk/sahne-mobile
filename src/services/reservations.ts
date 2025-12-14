@@ -39,12 +39,12 @@ export const reservationsService = {
    */
   async createReservation(
     data: CreateReservationRequest
-  ): Promise<Reservation> {
-    const response = await api.post<{ reservation: Reservation }>(
+  ): Promise<{ message: string; data: Reservation }> {
+    const response = await api.post<{ message: string; data: Reservation }>(
       '/reservations',
       data
     );
-    return response.data.reservation;
+    return response.data;
   },
 
   /**
