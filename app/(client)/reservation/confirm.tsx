@@ -110,7 +110,7 @@ export default function ConfirmationScreen() {
 
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 120 }}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
         showsVerticalScrollIndicator={false}
       >
         {/* Chef Info */}
@@ -241,25 +241,25 @@ export default function ConfirmationScreen() {
             Your reservation request will be sent to the chef. The chef will confirm or decline within 24 hours. You will be notified via email and push notification.
           </Text>
         </View>
-      </ScrollView>
 
-      {/* Confirm Button */}
-      <View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
-        <TouchableOpacity
-          style={[
-            styles.confirmButton,
-            (!acceptTerms || isLoading) && styles.confirmButtonDisabled,
-          ]}
-          onPress={handleConfirm}
-          disabled={!acceptTerms || isLoading}
-        >
-          {isLoading ? (
-            <ActivityIndicator color={Colors.white} />
-          ) : (
-            <Text style={styles.confirmButtonText}>Confirm Reservation</Text>
-          )}
-        </TouchableOpacity>
-      </View>
+        {/* Confirm Button */}
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={[
+              styles.confirmButton,
+              (!acceptTerms || isLoading) && styles.confirmButtonDisabled,
+            ]}
+            onPress={handleConfirm}
+            disabled={!acceptTerms || isLoading}
+          >
+            {isLoading ? (
+              <ActivityIndicator color={Colors.white} />
+            ) : (
+              <Text style={styles.confirmButtonText}>Confirm Reservation</Text>
+            )}
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
     </View>
   );
 }
@@ -462,13 +462,10 @@ const styles = StyleSheet.create({
     color: Colors.primaryDark,
     lineHeight: FontSize.bodySmall * 1.5,
   },
-  footer: {
+  buttonContainer: {
     paddingHorizontal: 20,
-    paddingTop: 12,
-    backgroundColor: Colors.surface,
-    borderTopWidth: 1,
-    borderTopColor: Colors.border,
-    ...Shadow.lg,
+    paddingTop: Spacing.lg,
+    paddingBottom: Spacing.md,
   },
   confirmButton: {
     backgroundColor: Colors.primary,

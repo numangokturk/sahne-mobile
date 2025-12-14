@@ -3,11 +3,17 @@
 ## 🐛 Bugs to Fix
 
 ### High Priority
-1. **chef/[id] tab still visible** - Bottom navigation still shows "chef/[id]" tab on the right side. Need to properly hide this dynamic route from tab bar.
+1. **Bottom tab showing too many routes (CRITICAL)** - Bottom navigation shows reservation screens and chef/[id] routes. Need to hide all non-main tabs from tab bar. Currently showing: Home, Explore, Bookings, Profile, reser..., reser..., reser..., reser..., chef/[id]. Should only show: Home, Explore, Bookings, Profile.
+   - ATTEMPTED FIX: Added `tabBarButton: () => null` to reservation folder and chef route in _layout.tsx but not working
+   - POSSIBLE SOLUTION: May need to restructure routes or use different approach for hiding tabs
 
-2. **Onboarding not showing for new users** - The 3-slide onboarding screen should show only on first app launch, but it's not appearing. AsyncStorage check may not be working correctly.
+2. **Reservation confirm button takes too much space** - Fixed footer button occupies screen space. Should be inside ScrollView content.
 
-3. **"Welcome back" always shows** - Even for first-time users or after clearing app data, "Welcome back" message appears instead of "Welcome".
+3. **Reservation booking too soon** - Minimum booking date is 1 day. Should be 3 days (72-hour advance notice).
+
+4. **Onboarding not showing for new users** - The 3-slide onboarding screen should show only on first app launch, but it's not appearing. AsyncStorage check may not be working correctly.
+
+5. **"Welcome back" always shows** - Even for first-time users or after clearing app data, "Welcome back" message appears instead of "Welcome".
 
 ### Medium Priority
 4. **Cover photo cropping** - Chef detail page cover photo is not fully visible, image appears cropped at top.

@@ -65,9 +65,9 @@ export default function DateSelectionScreen() {
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [mealPeriod, setMealPeriod] = useState<'lunch' | 'dinner'>('dinner');
 
-  // Calculate minimum date (tomorrow)
+  // Calculate minimum date (3 days from now for 72-hour advance booking)
   const minDate = new Date();
-  minDate.setDate(minDate.getDate() + 1);
+  minDate.setDate(minDate.getDate() + 3);
 
   // Calculate maximum date (3 months ahead)
   const maxDate = new Date();

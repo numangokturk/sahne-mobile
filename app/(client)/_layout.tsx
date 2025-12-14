@@ -68,6 +68,13 @@ export default function ClientLayout() {
           headerShown: false,
         }}
       />
+      <Tabs.Screen
+        name="reservation"
+        options={{
+          tabBarButton: () => null,
+          headerShown: false,
+        }}
+      />
     </Tabs>
   );
 }
