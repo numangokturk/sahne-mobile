@@ -3,7 +3,7 @@
  * Comprehensive chef profile with packages, gallery, reviews, and parcours
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -25,7 +25,8 @@ import {
   CheckCircle,
 } from 'lucide-react-native';
 import { chefsService } from '@/src/services';
-import { ChefProfile, ExperiencePackage } from '@/src/types';
+import { ChefProfile, ExperiencePackage, Review } from '@/src/types';
+import { getChefPhoto, shouldUseLocalPhoto } from '@/src/utils/chefPhotos';
 import {
   Colors,
   FontFamily,
@@ -44,10 +45,73 @@ export default function ChefDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const scrollViewRef = useRef<ScrollView>(null);
+  const reviewsSectionRef = useRef<View>(null);
 
   const [chef, setChef] = useState<ChefProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedPackage, setSelectedPackage] = useState<ExperiencePackage | null>(null);
+
+  // Mock reviews data (will be fetched from API later)
+  const mockReviews: Review[] = [
+    {
+      id: 1,
+      reservation_id: 1,
+      ratings: {
+        cuisine: 5,
+        presentation: 5,
+        service: 5,
+        overall: 5,
+        average: 5.0,
+      },
+      comment: 'An absolutely incredible experience! The chef created a 5-course masterpiece that exceeded all expectations. Every dish was perfectly executed with amazing flavors.',
+      chef_response: 'Thank you so much! It was a pleasure cooking for you.',
+      chef_response_at: '2024-01-16',
+      customer: { id: 1, name: 'Sarah Johnson' },
+      chef: { id: Number(id), name: chef?.user.name || '' },
+      is_reported: false,
+      created_at: '2024-01-15',
+      updated_at: '2024-01-15',
+    },
+    {
+      id: 2,
+      reservation_id: 2,
+      ratings: {
+        cuisine: 5,
+        presentation: 4,
+        service: 5,
+        overall: 5,
+        average: 4.8,
+      },
+      comment: 'Wonderful dining experience. The chef was professional and the food was outstanding. Highly recommend for special occasions!',
+      chef_response: null,
+      chef_response_at: null,
+      customer: { id: 2, name: 'Michael Chen' },
+      chef: { id: Number(id), name: chef?.user.name || '' },
+      is_reported: false,
+      created_at: '2024-01-10',
+      updated_at: '2024-01-10',
+    },
+    {
+      id: 3,
+      reservation_id: 3,
+      ratings: {
+        cuisine: 4,
+        presentation: 5,
+        service: 4,
+        overall: 4,
+        average: 4.3,
+      },
+      comment: 'Great food and presentation. The chef was very attentive to our dietary requirements.',
+      chef_response: null,
+      chef_response_at: null,
+      customer: { id: 3, name: 'Emma Wilson' },
+      chef: { id: Number(id), name: chef?.user.name || '' },
+      is_reported: false,
+      created_at: '2024-01-05',
+      updated_at: '2024-01-05',
+    },
+  ];
 
   useEffect(() => {
     if (id) {
@@ -82,6 +146,35 @@ export default function ChefDetailScreen() {
     console.log('Book now with package:', selectedPackage.id);
   };
 
+  const scrollToReviews = () => {
+    reviewsSectionRef.current?.measureLayout(
+      scrollViewRef.current as any,
+      (_x, y) => {
+        scrollViewRef.current?.scrollTo({ y, animated: true });
+      },
+      () => {}
+    );
+  };
+
+  const averageRating = mockReviews.length > 0
+    ? mockReviews.reduce((sum, r) => sum + r.ratings.average, 0) / mockReviews.length
+    : 0;
+
+  const renderStars = (rating: number) => {
+    return (
+      <View style={styles.starsContainer}>
+        {[1, 2, 3, 4, 5].map((star) => (
+          <Star
+            key={star}
+            size={14}
+            color={star <= rating ? Colors.primary : Colors.borderLight}
+            fill={star <= rating ? Colors.primary : 'transparent'}
+          />
+        ))}
+      </View>
+    );
+  };
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -108,30 +201,27 @@ export default function ChefDetailScreen() {
       </View>
 
       <ScrollView
+        ref={scrollViewRef}
         style={styles.scrollView}
-        contentContainerStyle={{ paddingBottom: 100 }}
+        contentContainerStyle={{ paddingBottom: 150 }}
         showsVerticalScrollIndicator={false}
       >
         {/* Cover Image */}
         <View style={styles.coverContainer}>
-          {chef.cover_image ? (
+          {chef.cover_image && !shouldUseLocalPhoto(chef.cover_image) ? (
             <Image source={{ uri: chef.cover_image }} style={styles.coverImage} />
           ) : (
-            <View style={[styles.coverImage, styles.coverPlaceholder]} />
+            <Image source={getChefPhoto(chef.id)} style={styles.coverImage} />
           )}
         </View>
 
         {/* Profile Section */}
         <View style={styles.profileSection}>
           <View style={styles.profileImageContainer}>
-            {chef.profile_image ? (
+            {chef.profile_image && !shouldUseLocalPhoto(chef.profile_image) ? (
               <Image source={{ uri: chef.profile_image }} style={styles.profileImage} />
             ) : (
-              <View style={[styles.profileImage, styles.profilePlaceholder]}>
-                <Text style={styles.profilePlaceholderText}>
-                  {chef.user.name[0].toUpperCase()}
-                </Text>
-              </View>
+              <Image source={getChefPhoto(chef.id)} style={styles.profileImage} />
             )}
           </View>
 
@@ -140,10 +230,12 @@ export default function ChefDetailScreen() {
             <Text style={styles.chefTitle}>{chef.title}</Text>
 
             {/* Rating */}
-            <View style={styles.ratingContainer}>
+            <TouchableOpacity style={styles.ratingContainer} onPress={scrollToReviews}>
               <Star size={16} color={Colors.primary} fill={Colors.primary} />
-              <Text style={styles.ratingText}>4.8 (24 reviews)</Text>
-            </View>
+              <Text style={styles.ratingText}>
+                {averageRating.toFixed(1)} ({mockReviews.length} reviews)
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -289,10 +381,76 @@ export default function ChefDetailScreen() {
               ))}
           </View>
         )}
+
+        {/* Reviews Section */}
+        <View ref={reviewsSectionRef} style={styles.section}>
+          <View style={styles.reviewsHeader}>
+            <View>
+              <Text style={styles.sectionTitle}>Reviews</Text>
+              <View style={styles.reviewsRating}>
+                <Star size={20} color={Colors.primary} fill={Colors.primary} />
+                <Text style={styles.reviewsAverageText}>
+                  {averageRating.toFixed(1)}
+                </Text>
+                <Text style={styles.reviewsCountText}>
+                  ({mockReviews.length} reviews)
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          {mockReviews.slice(0, 3).map((review) => (
+            <View key={review.id} style={styles.reviewCard}>
+              {/* Customer Info */}
+              <View style={styles.reviewHeader}>
+                <View style={styles.reviewAvatar}>
+                  <Text style={styles.reviewAvatarText}>
+                    {review.customer.name[0].toUpperCase()}
+                  </Text>
+                </View>
+                <View style={styles.reviewHeaderInfo}>
+                  <Text style={styles.reviewCustomerName}>{review.customer.name}</Text>
+                  <Text style={styles.reviewDate}>
+                    {new Date(review.created_at).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                    })}
+                  </Text>
+                </View>
+                <View>{renderStars(Math.round(review.ratings.average))}</View>
+              </View>
+
+              {/* Review Comment */}
+              <Text style={styles.reviewComment}>{review.comment}</Text>
+
+              {/* Chef Response */}
+              {review.chef_response && (
+                <View style={styles.chefResponseContainer}>
+                  <Text style={styles.chefResponseLabel}>Chef&apos;s Response:</Text>
+                  <Text style={styles.chefResponseText}>{review.chef_response}</Text>
+                </View>
+              )}
+            </View>
+          ))}
+
+          {/* View All Reviews Button */}
+          <TouchableOpacity
+            style={styles.viewAllReviewsButton}
+            onPress={() => alert('View All Reviews - Coming in Phase 4')}
+          >
+            <Text style={styles.viewAllReviewsText}>View All Reviews</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
 
       {/* Fixed Book Now Button */}
-      <View style={[styles.bookNowContainer, { paddingBottom: insets.bottom + 16 }]}>
+      <View style={[styles.bookNowContainer, { paddingBottom: insets.bottom + 12 }]}>
+        {selectedPackage && (
+          <Text style={styles.selectedPackageText}>
+            Selected: {selectedPackage.display_name}
+          </Text>
+        )}
         <TouchableOpacity
           style={[
             styles.bookNowButton,
@@ -302,9 +460,7 @@ export default function ChefDetailScreen() {
           disabled={!selectedPackage}
         >
           <Text style={styles.bookNowText}>
-            {selectedPackage
-              ? `Book ${selectedPackage.display_name}`
-              : 'Select a Package'}
+            {selectedPackage ? 'Reserve Now' : 'Select a Package'}
           </Text>
         </TouchableOpacity>
       </View>
@@ -639,15 +795,25 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
     borderTopWidth: 1,
     borderTopColor: Colors.border,
-    paddingTop: 16,
+    paddingTop: 12,
     paddingHorizontal: 20,
     ...Shadow.lg,
+  },
+  selectedPackageText: {
+    fontFamily: FontFamily.body,
+    fontSize: FontSize.caption,
+    fontWeight: FontWeight.medium,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    marginBottom: 8,
+    letterSpacing: LetterSpacing.normal,
   },
   bookNowButton: {
     backgroundColor: Colors.primary,
     borderRadius: BorderRadius.md,
-    paddingVertical: Spacing.md,
+    height: 50,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   bookNowButtonDisabled: {
     backgroundColor: Colors.disabled,
@@ -657,6 +823,124 @@ const styles = StyleSheet.create({
     fontSize: FontSize.button,
     fontWeight: FontWeight.semibold,
     color: Colors.white,
+    letterSpacing: LetterSpacing.normal,
+  },
+  reviewsHeader: {
+    marginBottom: Spacing.md,
+  },
+  reviewsRating: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: Spacing.xs,
+    gap: 6,
+  },
+  reviewsAverageText: {
+    fontFamily: FontFamily.heading,
+    fontSize: FontSize.h3,
+    fontWeight: FontWeight.semibold,
+    color: Colors.textPrimary,
+    letterSpacing: LetterSpacing.normal,
+  },
+  reviewsCountText: {
+    fontFamily: FontFamily.body,
+    fontSize: FontSize.bodyMedium,
+    fontWeight: FontWeight.regular,
+    color: Colors.textSecondary,
+    letterSpacing: LetterSpacing.normal,
+  },
+  reviewCard: {
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    padding: Spacing.md,
+    marginBottom: Spacing.md,
+  },
+  reviewHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: Spacing.sm,
+  },
+  reviewAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: Colors.primaryLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: Spacing.sm,
+  },
+  reviewAvatarText: {
+    fontFamily: FontFamily.heading,
+    fontSize: FontSize.bodyMedium,
+    fontWeight: FontWeight.semibold,
+    color: Colors.primary,
+  },
+  reviewHeaderInfo: {
+    flex: 1,
+  },
+  reviewCustomerName: {
+    fontFamily: FontFamily.body,
+    fontSize: FontSize.bodyMedium,
+    fontWeight: FontWeight.semibold,
+    color: Colors.textPrimary,
+    letterSpacing: LetterSpacing.normal,
+  },
+  reviewDate: {
+    fontFamily: FontFamily.body,
+    fontSize: FontSize.caption,
+    fontWeight: FontWeight.regular,
+    color: Colors.textSecondary,
+    marginTop: 2,
+    letterSpacing: LetterSpacing.normal,
+  },
+  starsContainer: {
+    flexDirection: 'row',
+    gap: 2,
+  },
+  reviewComment: {
+    fontFamily: FontFamily.body,
+    fontSize: FontSize.bodyMedium,
+    fontWeight: FontWeight.regular,
+    color: Colors.textSecondary,
+    lineHeight: FontSize.bodyMedium * 1.5,
+    letterSpacing: LetterSpacing.normal,
+  },
+  chefResponseContainer: {
+    marginTop: Spacing.sm,
+    paddingTop: Spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: Colors.borderLight,
+  },
+  chefResponseLabel: {
+    fontFamily: FontFamily.body,
+    fontSize: FontSize.bodySmall,
+    fontWeight: FontWeight.semibold,
+    color: Colors.primary,
+    marginBottom: 4,
+    letterSpacing: LetterSpacing.normal,
+  },
+  chefResponseText: {
+    fontFamily: FontFamily.body,
+    fontSize: FontSize.bodySmall,
+    fontWeight: FontWeight.regular,
+    color: Colors.textSecondary,
+    lineHeight: FontSize.bodySmall * 1.5,
+    letterSpacing: LetterSpacing.normal,
+  },
+  viewAllReviewsButton: {
+    borderWidth: 1,
+    borderColor: Colors.primary,
+    borderRadius: BorderRadius.md,
+    paddingVertical: Spacing.sm,
+    alignItems: 'center',
+    marginTop: Spacing.sm,
+  },
+  viewAllReviewsText: {
+    fontFamily: FontFamily.body,
+    fontSize: FontSize.bodyMedium,
+    fontWeight: FontWeight.semibold,
+    color: Colors.primary,
     letterSpacing: LetterSpacing.normal,
   },
 });

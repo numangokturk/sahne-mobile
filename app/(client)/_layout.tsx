@@ -61,6 +61,12 @@ export default function ClientLayout() {
           tabBarIcon: ({ color }) => <TabIcon name="user" color={color} />,
         }}
       />
+      <Tabs.Screen
+        name="chef"
+        options={{
+          href: null, // Hide from tab bar
+        }}
+      />
     </Tabs>
   );
 }

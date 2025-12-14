@@ -9,6 +9,7 @@ import { useRouter } from 'expo-router';
 import { Chef } from '@/src/types';
 import { Colors, FontFamily, FontSize, FontWeight, Spacing, BorderRadius, Shadow } from '@/src/constants';
 import { format } from '@/src/utils';
+import { getChefPhoto, shouldUseLocalPhoto } from '@/src/utils/chefPhotos';
 
 interface ChefCardProps {
   chef: Chef;
@@ -34,18 +35,18 @@ export const ChefCard: React.FC<ChefCardProps> = ({ chef }) => {
     >
       {/* Chef Image */}
       <View style={styles.imageContainer}>
-        {chef.profile_image ? (
+        {chef.profile_image && !shouldUseLocalPhoto(chef.profile_image) ? (
           <Image
             source={{ uri: chef.profile_image }}
             style={styles.image}
             resizeMode="cover"
           />
         ) : (
-          <View style={styles.placeholderImage}>
-            <Text style={styles.placeholderText}>
-              {chef.user?.name?.[0]?.toUpperCase() || '?'}
-            </Text>
-          </View>
+          <Image
+            source={getChefPhoto(chef.id)}
+            style={styles.image}
+            resizeMode="cover"
+          />
         )}
 
         {/* Rating Badge */}

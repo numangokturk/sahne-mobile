@@ -5,30 +5,34 @@
 export interface Review {
   id: number;
   reservation_id: number;
-  client_id: number;
-  chef_id: number;
-  food_quality: number; // 1-5
-  presentation: number; // 1-5
-  professionalism: number; // 1-5
-  value_for_money: number; // 1-5
-  overall_rating: number; // Calculated average
-  comment: string | null;
-  chef_reply: string | null;
-  created_at: string;
-  updated_at: string;
-
-  // Relations
-  client?: {
+  ratings: {
+    cuisine: number;
+    presentation: number;
+    service: number;
+    overall: number;
+    average: number;
+  };
+  comment: string;
+  chef_response: string | null;
+  chef_response_at: string | null;
+  customer: {
     id: number;
     name: string;
   };
+  chef: {
+    id: number;
+    name: string;
+  };
+  is_reported: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface CreateReviewRequest {
   reservation_id: number;
-  food_quality: number;
+  cuisine: number;
   presentation: number;
-  professionalism: number;
-  value_for_money: number;
+  service: number;
+  overall: number;
   comment?: string;
 }
