@@ -15,6 +15,7 @@ interface ChefCardProps {
 }
 
 export const ChefCard: React.FC<ChefCardProps> = ({ chef }) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const router = useRouter();
 
   const handlePress = () => {

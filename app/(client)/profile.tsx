@@ -2,7 +2,7 @@
  * SAHNE - Profile Screen
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -11,12 +11,28 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
+  Switch,
+  Modal,
 } from 'react-native';
-import { useAuth } from '@/src/context';
-import { Colors, FontFamily, FontSize, FontWeight, Spacing, BorderRadius } from '@/src/constants';
+import {
+  User,
+  Bell,
+  CreditCard,
+  Settings,
+  Globe,
+  HelpCircle,
+  FileText,
+  Lock,
+  ChevronRight,
+  Moon,
+  Sun,
+  X,
+} from 'lucide-react-native';
+import { useAuth, useTheme } from '@/src/context';
+import { Colors, FontFamily, FontSize, FontWeight, Spacing, BorderRadius, LetterSpacing } from '@/src/constants';
 
 interface MenuItemProps {
-  icon: string;
+  icon: React.ReactNode;
   title: string;
   onPress: () => void;
   destructive?: boolean;
@@ -24,16 +40,18 @@ interface MenuItemProps {
 
 const MenuItem: React.FC<MenuItemProps> = ({ icon, title, onPress, destructive }) => (
   <TouchableOpacity style={styles.menuItem} onPress={onPress}>
-    <Text style={styles.menuIcon}>{icon}</Text>
+    <View style={styles.menuIcon}>{icon}</View>
     <Text style={[styles.menuTitle, destructive && styles.menuTitleDestructive]}>
       {title}
     </Text>
-    <Text style={styles.menuArrow}>›</Text>
+    <ChevronRight size={20} color={Colors.textLight} />
   </TouchableOpacity>
 );
 
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
+  const { setTheme, isDark } = useTheme();
+  const [settingsModalVisible, setSettingsModalVisible] = useState(false);
 
   const handleLogout = () => {
     Alert.alert(
@@ -44,6 +62,10 @@ export default function ProfileScreen() {
         { text: 'Logout', onPress: logout, style: 'destructive' },
       ]
     );
+  };
+
+  const handleThemeChange = (newTheme: 'light' | 'dark') => {
+    setTheme(newTheme);
   };
 
   return (
@@ -65,17 +87,17 @@ export default function ProfileScreen() {
           <Text style={styles.sectionTitle}>Account</Text>
           <View style={styles.menu}>
             <MenuItem
-              icon="👤"
+              icon={<User size={20} color={Colors.textSecondary} />}
               title="Personal Information"
               onPress={() => Alert.alert('Coming Soon', 'Edit profile feature coming soon')}
             />
             <MenuItem
-              icon="🔔"
+              icon={<Bell size={20} color={Colors.textSecondary} />}
               title="Notifications"
               onPress={() => Alert.alert('Coming Soon', 'Notification settings coming soon')}
             />
             <MenuItem
-              icon="💳"
+              icon={<CreditCard size={20} color={Colors.textSecondary} />}
               title="Payment Methods"
               onPress={() => Alert.alert('Coming Soon', 'Payment methods coming soon')}
             />
@@ -86,12 +108,12 @@ export default function ProfileScreen() {
           <Text style={styles.sectionTitle}>Preferences</Text>
           <View style={styles.menu}>
             <MenuItem
-              icon="⚙️"
+              icon={<Settings size={20} color={Colors.textSecondary} />}
               title="Settings"
-              onPress={() => Alert.alert('Coming Soon', 'Settings coming soon')}
+              onPress={() => setSettingsModalVisible(true)}
             />
             <MenuItem
-              icon="🌐"
+              icon={<Globe size={20} color={Colors.textSecondary} />}
               title="Language"
               onPress={() => Alert.alert('Coming Soon', 'Language selection coming soon')}
             />
@@ -102,17 +124,17 @@ export default function ProfileScreen() {
           <Text style={styles.sectionTitle}>Support</Text>
           <View style={styles.menu}>
             <MenuItem
-              icon="❓"
+              icon={<HelpCircle size={20} color={Colors.textSecondary} />}
               title="Help & Support"
               onPress={() => Alert.alert('Coming Soon', 'Support center coming soon')}
             />
             <MenuItem
-              icon="📄"
+              icon={<FileText size={20} color={Colors.textSecondary} />}
               title="Terms & Conditions"
               onPress={() => Alert.alert('Coming Soon', 'Terms coming soon')}
             />
             <MenuItem
-              icon="🔒"
+              icon={<Lock size={20} color={Colors.textSecondary} />}
               title="Privacy Policy"
               onPress={() => Alert.alert('Coming Soon', 'Privacy policy coming soon')}
             />
@@ -127,6 +149,47 @@ export default function ProfileScreen() {
         {/* App Version */}
         <Text style={styles.version}>Version 1.0.0</Text>
       </ScrollView>
+
+      {/* Settings Modal */}
+      <Modal
+        visible={settingsModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setSettingsModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            {/* Modal Header */}
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Settings</Text>
+              <TouchableOpacity
+                onPress={() => setSettingsModalVisible(false)}
+                style={styles.modalCloseButton}
+              >
+                <X size={24} color={Colors.textPrimary} />
+              </TouchableOpacity>
+            </View>
+
+            {/* Dark Mode Toggle */}
+            <View style={styles.settingItem}>
+              <View style={styles.settingLeft}>
+                {isDark ? (
+                  <Moon size={20} color={Colors.textSecondary} />
+                ) : (
+                  <Sun size={20} color={Colors.textSecondary} />
+                )}
+                <Text style={styles.settingLabel}>Dark Mode</Text>
+              </View>
+              <Switch
+                value={isDark}
+                onValueChange={(value) => handleThemeChange(value ? 'dark' : 'light')}
+                trackColor={{ false: Colors.borderLight, true: Colors.primary }}
+                thumbColor={Colors.white}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -145,7 +208,9 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: Colors.surface,
+    borderWidth: 2,
+    borderColor: Colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: Spacing.md,
@@ -153,37 +218,42 @@ const styles = StyleSheet.create({
   avatarText: {
     fontFamily: FontFamily.heading,
     fontSize: 36,
-    fontWeight: FontWeight.bold,
+    fontWeight: FontWeight.semibold,
     color: Colors.primary,
   },
   name: {
     fontFamily: FontFamily.heading,
     fontSize: FontSize.h3,
-    fontWeight: FontWeight.bold,
+    fontWeight: FontWeight.semibold,
     color: Colors.textPrimary,
     marginBottom: Spacing.xs,
+    letterSpacing: LetterSpacing.normal,
   },
   email: {
     fontFamily: FontFamily.body,
     fontSize: FontSize.bodyMedium,
+    fontWeight: FontWeight.regular,
     color: Colors.textSecondary,
+    letterSpacing: LetterSpacing.normal,
   },
   section: {
-    marginTop: Spacing.lg,
-    paddingHorizontal: Spacing.lg,
+    marginTop: Spacing.md,
+    paddingHorizontal: 20,
   },
   sectionTitle: {
     fontFamily: FontFamily.body,
-    fontSize: FontSize.bodySmall,
+    fontSize: FontSize.caption,
     fontWeight: FontWeight.semibold,
     color: Colors.textSecondary,
-    marginBottom: Spacing.sm,
+    marginBottom: 12,
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    letterSpacing: LetterSpacing.wide,
   },
   menu: {
     backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.xl,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+    borderColor: Colors.border,
     overflow: 'hidden',
   },
   menuItem: {
@@ -191,33 +261,32 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: Spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.borderLight,
+    borderBottomColor: Colors.border,
   },
   menuIcon: {
-    fontSize: 24,
     marginRight: Spacing.md,
+    width: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   menuTitle: {
     flex: 1,
     fontFamily: FontFamily.body,
     fontSize: FontSize.bodyMedium,
+    fontWeight: FontWeight.regular,
     color: Colors.textPrimary,
+    letterSpacing: LetterSpacing.normal,
   },
   menuTitleDestructive: {
     color: Colors.error,
   },
-  menuArrow: {
-    fontFamily: FontFamily.body,
-    fontSize: 24,
-    color: Colors.textLight,
-  },
   logoutButton: {
-    marginHorizontal: Spacing.lg,
+    marginHorizontal: 20,
     marginTop: Spacing.xl,
     paddingVertical: Spacing.md,
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.md,
     alignItems: 'center',
-    borderWidth: 2,
+    borderWidth: 1,
     borderColor: Colors.error,
   },
   logoutText: {
@@ -225,13 +294,66 @@ const styles = StyleSheet.create({
     fontSize: FontSize.button,
     fontWeight: FontWeight.semibold,
     color: Colors.error,
+    letterSpacing: LetterSpacing.normal,
   },
   version: {
     fontFamily: FontFamily.body,
     fontSize: FontSize.caption,
+    fontWeight: FontWeight.regular,
     color: Colors.textLight,
     textAlign: 'center',
     marginTop: Spacing.xl,
-    marginBottom: Spacing.xxl,
+    marginBottom: 100,
+    letterSpacing: LetterSpacing.normal,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: Colors.surface,
+    borderTopLeftRadius: BorderRadius.xl,
+    borderTopRightRadius: BorderRadius.xl,
+    paddingTop: Spacing.lg,
+    paddingBottom: Spacing.xxl,
+    paddingHorizontal: 20,
+    minHeight: 200,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.lg,
+  },
+  modalTitle: {
+    fontFamily: FontFamily.heading,
+    fontSize: FontSize.h3,
+    fontWeight: FontWeight.semibold,
+    color: Colors.textPrimary,
+    letterSpacing: LetterSpacing.normal,
+  },
+  modalCloseButton: {
+    padding: Spacing.xs,
+  },
+  settingItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: Spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  settingLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+  },
+  settingLabel: {
+    fontFamily: FontFamily.body,
+    fontSize: FontSize.bodyMedium,
+    fontWeight: FontWeight.regular,
+    color: Colors.textPrimary,
+    letterSpacing: LetterSpacing.normal,
   },
 });

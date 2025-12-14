@@ -5,22 +5,25 @@
 
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Colors, FontFamily, FontSize, FontWeight, Spacing } from '@/src/constants';
+import { Search } from 'lucide-react-native';
+import { Colors, FontFamily, FontSize, FontWeight, Spacing, LetterSpacing } from '@/src/constants';
 
 interface EmptyStateProps {
   title: string;
   description: string;
-  icon?: string;
+  icon?: React.ReactNode;
 }
 
 export const EmptyState: React.FC<EmptyStateProps> = ({
   title,
   description,
-  icon = '🔍',
+  icon,
 }) => {
   return (
     <View style={styles.container}>
-      <Text style={styles.icon}>{icon}</Text>
+      <View style={styles.iconContainer}>
+        {icon || <Search size={64} color={Colors.textLight} strokeWidth={1.5} />}
+      </View>
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.description}>{description}</Text>
     </View>
@@ -34,17 +37,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: Spacing.xxl,
   },
-  icon: {
-    fontSize: 64,
-    marginBottom: Spacing.lg,
+  iconContainer: {
+    marginBottom: Spacing.xl,
   },
   title: {
     fontFamily: FontFamily.heading,
     fontSize: FontSize.h3,
-    fontWeight: FontWeight.bold,
+    fontWeight: FontWeight.semibold,
     color: Colors.textPrimary,
     marginBottom: Spacing.sm,
     textAlign: 'center',
+    letterSpacing: LetterSpacing.normal,
   },
   description: {
     fontFamily: FontFamily.body,

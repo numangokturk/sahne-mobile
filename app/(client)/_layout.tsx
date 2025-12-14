@@ -3,11 +3,15 @@
  */
 
 import React from 'react';
-import { Text } from 'react-native';
+import { View } from 'react-native';
 import { Tabs } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Home, Search, Calendar, User } from 'lucide-react-native';
 import { Colors } from '@/src/constants';
 
 export default function ClientLayout() {
+  const insets = useSafeAreaInsets();
+
   return (
     <Tabs
       screenOptions={{
@@ -18,13 +22,14 @@ export default function ClientLayout() {
           backgroundColor: Colors.surface,
           borderTopColor: Colors.border,
           borderTopWidth: 1,
-          paddingBottom: 8,
           paddingTop: 8,
-          height: 60,
+          paddingBottom: insets.bottom > 0 ? insets.bottom : 8,
+          height: 60 + (insets.bottom > 0 ? insets.bottom : 0),
         },
         tabBarLabelStyle: {
-          fontSize: 12,
+          fontSize: 10,
           fontWeight: '600',
+          letterSpacing: 0.3,
         },
       }}
     >
@@ -60,18 +65,20 @@ export default function ClientLayout() {
   );
 }
 
-// Simple icon component (you can replace with actual icons later)
+// Tab icon component with Lucide icons
 const TabIcon: React.FC<{ name: string; color: string }> = ({ name, color }) => {
-  const icons: Record<string, string> = {
-    home: '🏠',
-    search: '🔍',
-    calendar: '📅',
-    user: '👤',
-  };
+  const iconProps = { color, size: 22, strokeWidth: 2 };
 
-  return (
-    <Text style={{ fontSize: 24 }}>
-      {icons[name] || '•'}
-    </Text>
-  );
+  switch (name) {
+    case 'home':
+      return <Home {...iconProps} />;
+    case 'search':
+      return <Search {...iconProps} />;
+    case 'calendar':
+      return <Calendar {...iconProps} />;
+    case 'user':
+      return <User {...iconProps} />;
+    default:
+      return <View />;
+  }
 };

@@ -51,6 +51,7 @@ export default function ClientHomeScreen() {
 
   useEffect(() => {
     fetchChefs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleRefresh = () => {

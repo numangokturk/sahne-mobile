@@ -29,28 +29,28 @@ export const FontFamily = {
 } as const;
 
 export const FontSize = {
-  // Display
-  displayLarge: 48,
-  displayMedium: 40,
-  displaySmall: 32,
+  // Display (15% smaller)
+  displayLarge: 41,
+  displayMedium: 34,
+  displaySmall: 27,
 
-  // Headings
-  h1: 28,
-  h2: 24,
-  h3: 20,
-  h4: 18,
-  h5: 16,
-  h6: 14,
+  // Headings (15% smaller)
+  h1: 24,
+  h2: 20,
+  h3: 17,
+  h4: 15,
+  h5: 14,
+  h6: 12,
 
-  // Body
-  bodyLarge: 18,
-  bodyMedium: 16,
-  bodySmall: 14,
+  // Body (15% smaller)
+  bodyLarge: 15,
+  bodyMedium: 14,
+  bodySmall: 12,
 
-  // Utility
-  caption: 12,
-  button: 16,
-  label: 14,
+  // Utility (15% smaller)
+  caption: 10,
+  button: 14,
+  label: 12,
 } as const;
 
 export const FontWeight = {
@@ -66,4 +66,11 @@ export const LineHeight = {
   normal: 1.5,
   relaxed: 1.75,
   loose: 2,
+} as const;
+
+export const LetterSpacing = {
+  tight: 0,
+  normal: 0.3,
+  wide: 0.5,
+  wider: 0.8,
 } as const;

@@ -52,7 +52,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         router.replace('/(client)');
       }
     }
-  }, [user, segments, isLoading]);
+  }, [user, segments, isLoading, router]);
 
   const checkAuthStatus = async () => {
     try {

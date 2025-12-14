@@ -12,17 +12,18 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Calendar } from 'lucide-react-native';
 import { useAuth } from '@/src/context';
 import { chefsService } from '@/src/services';
-import { Chef, ApiError } from '@/src/types';
+import { Chef } from '@/src/types';
 import { ChefCard } from '@/src/components/chef';
-import { Colors, FontFamily, FontSize, FontWeight, Spacing, BorderRadius } from '@/src/constants';
+import { Colors, FontFamily, FontSize, FontWeight, Spacing, BorderRadius, LetterSpacing } from '@/src/constants';
 
 const CATEGORIES = [
-  { id: 1, name: 'Turkish', icon: '🇹🇷', specialty: 'Turkish' },
-  { id: 2, name: 'Italian', icon: '🇮🇹', specialty: 'Italian' },
-  { id: 3, name: 'Japanese', icon: '🇯🇵', specialty: 'Japanese' },
-  { id: 4, name: 'French', icon: '🇫🇷', specialty: 'French' },
+  { id: 1, name: 'Turkish', specialty: 'Turkish' },
+  { id: 2, name: 'Italian', specialty: 'Italian' },
+  { id: 3, name: 'Japanese', specialty: 'Japanese' },
+  { id: 4, name: 'French', specialty: 'French' },
 ];
 
 export default function HomeScreen() {
@@ -70,14 +71,16 @@ export default function HomeScreen() {
         <View style={styles.header}>
           <View>
             <Text style={styles.greeting}>Welcome back,</Text>
-            <Text style={styles.userName}>{user?.name}! 👋</Text>
+            <Text style={styles.userName}>{user?.name}</Text>
           </View>
         </View>
 
         {/* Upcoming Reservation Card (Placeholder) */}
         <View style={styles.section}>
           <View style={styles.upcomingCard}>
-            <Text style={styles.upcomingIcon}>📅</Text>
+            <View style={styles.upcomingIcon}>
+              <Calendar size={32} color={Colors.primary} strokeWidth={2} />
+            </View>
             <View style={styles.upcomingContent}>
               <Text style={styles.upcomingTitle}>No Upcoming Reservations</Text>
               <Text style={styles.upcomingText}>
@@ -101,7 +104,6 @@ export default function HomeScreen() {
                 style={styles.categoryCard}
                 onPress={() => handleCategoryPress(category)}
               >
-                <Text style={styles.categoryIcon}>{category.icon}</Text>
                 <Text style={styles.categoryName}>{category.name}</Text>
               </TouchableOpacity>
             ))}
@@ -154,10 +156,10 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
   },
   scrollContent: {
-    paddingBottom: Spacing.xxl,
+    paddingBottom: 100, // Extra padding for bottom tab
   },
   header: {
-    paddingHorizontal: Spacing.lg,
+    paddingHorizontal: 20,
     paddingTop: Spacing.lg,
     paddingBottom: Spacing.md,
     backgroundColor: Colors.surface,
@@ -165,87 +167,100 @@ const styles = StyleSheet.create({
   greeting: {
     fontFamily: FontFamily.body,
     fontSize: FontSize.bodyMedium,
+    fontWeight: FontWeight.regular,
     color: Colors.textSecondary,
+    letterSpacing: LetterSpacing.normal,
   },
   userName: {
     fontFamily: FontFamily.heading,
     fontSize: FontSize.h2,
-    fontWeight: FontWeight.bold,
+    fontWeight: FontWeight.semibold,
     color: Colors.textPrimary,
+    letterSpacing: LetterSpacing.normal,
   },
   section: {
-    marginTop: Spacing.lg,
-    paddingHorizontal: Spacing.lg,
+    marginTop: Spacing.md,
+    paddingHorizontal: 20,
   },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: Spacing.md,
+    marginBottom: 12,
   },
   sectionTitle: {
     fontFamily: FontFamily.heading,
     fontSize: FontSize.h4,
-    fontWeight: FontWeight.bold,
+    fontWeight: FontWeight.semibold,
     color: Colors.textPrimary,
+    letterSpacing: LetterSpacing.normal,
+    marginBottom: 12,
   },
   viewAllText: {
     fontFamily: FontFamily.body,
     fontSize: FontSize.bodySmall,
     color: Colors.primary,
     fontWeight: FontWeight.semibold,
+    letterSpacing: LetterSpacing.normal,
   },
   upcomingCard: {
     flexDirection: 'row',
-    backgroundColor: Colors.primaryLight,
-    borderRadius: BorderRadius.xl,
-    padding: Spacing.lg,
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    padding: Spacing.md,
     alignItems: 'center',
   },
   upcomingIcon: {
-    fontSize: 48,
     marginRight: Spacing.md,
+    width: 32,
+    height: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   upcomingContent: {
     flex: 1,
   },
   upcomingTitle: {
     fontFamily: FontFamily.heading,
-    fontSize: FontSize.bodyLarge,
-    fontWeight: FontWeight.bold,
-    color: Colors.primaryDark,
-    marginBottom: Spacing.xs,
+    fontSize: FontSize.bodyMedium,
+    fontWeight: FontWeight.semibold,
+    color: Colors.textPrimary,
+    marginBottom: 4,
+    letterSpacing: LetterSpacing.normal,
   },
   upcomingText: {
     fontFamily: FontFamily.body,
     fontSize: FontSize.bodySmall,
+    fontWeight: FontWeight.regular,
     color: Colors.textSecondary,
+    letterSpacing: LetterSpacing.normal,
   },
   categoriesContainer: {
-    paddingRight: Spacing.lg,
+    paddingRight: 20,
   },
   categoryCard: {
     backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.xl,
-    padding: Spacing.lg,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.lg,
     marginRight: Spacing.md,
     alignItems: 'center',
     justifyContent: 'center',
-    width: 100,
-    height: 100,
-  },
-  categoryIcon: {
-    fontSize: 32,
-    marginBottom: Spacing.sm,
+    minWidth: 100,
   },
   categoryName: {
     fontFamily: FontFamily.body,
     fontSize: FontSize.bodySmall,
     fontWeight: FontWeight.semibold,
     color: Colors.textPrimary,
+    letterSpacing: LetterSpacing.normal,
   },
   chefsContainer: {
-    paddingRight: Spacing.lg,
+    paddingRight: 20,
   },
   chefCardContainer: {
     width: 300,
@@ -254,23 +269,27 @@ const styles = StyleSheet.create({
   loadingText: {
     fontFamily: FontFamily.body,
     fontSize: FontSize.bodyMedium,
+    fontWeight: FontWeight.regular,
     color: Colors.textSecondary,
     textAlign: 'center',
     paddingVertical: Spacing.xl,
+    letterSpacing: LetterSpacing.normal,
   },
   noDataText: {
     fontFamily: FontFamily.body,
     fontSize: FontSize.bodyMedium,
+    fontWeight: FontWeight.regular,
     color: Colors.textSecondary,
     textAlign: 'center',
     paddingVertical: Spacing.xl,
+    letterSpacing: LetterSpacing.normal,
   },
   viewAllButton: {
     backgroundColor: Colors.primary,
-    marginHorizontal: Spacing.lg,
+    marginHorizontal: 20,
     marginTop: Spacing.xl,
     paddingVertical: Spacing.md,
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.md,
     alignItems: 'center',
   },
   viewAllButtonText: {
@@ -278,5 +297,6 @@ const styles = StyleSheet.create({
     fontSize: FontSize.button,
     fontWeight: FontWeight.semibold,
     color: Colors.white,
+    letterSpacing: LetterSpacing.normal,
   },
 });
