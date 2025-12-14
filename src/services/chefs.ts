@@ -4,7 +4,7 @@
  */
 
 import { api } from './api';
-import { Chef, PaginatedResponse } from '@/src/types';
+import { Chef, ChefProfile, PaginatedResponse } from '@/src/types';
 
 export interface ChefFilters {
   search?: string;
@@ -27,11 +27,11 @@ export const chefsService = {
   },
 
   /**
-   * Get chef by ID with details
+   * Get chef by ID with full profile details
    */
-  async getChefById(id: number): Promise<Chef> {
-    const response = await api.get<{ chef: Chef }>(`/chefs/${id}`);
-    return response.data.chef;
+  async getChefById(id: number): Promise<ChefProfile> {
+    const response = await api.get<{ data: ChefProfile }>(`/chefs/${id}`);
+    return response.data.data;
   },
 
   /**

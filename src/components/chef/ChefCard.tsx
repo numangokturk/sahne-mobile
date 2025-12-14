@@ -15,13 +15,10 @@ interface ChefCardProps {
 }
 
 export const ChefCard: React.FC<ChefCardProps> = ({ chef }) => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const router = useRouter();
 
   const handlePress = () => {
-    // TODO: Navigate to chef detail (Phase 3)
-    // router.push(`/chef/${chef.id}` as any);
-    console.log('Chef card pressed:', chef.id);
+    router.push(`/(client)/chef/${chef.id}` as any);
   };
 
   // Calculate starting price from packages
