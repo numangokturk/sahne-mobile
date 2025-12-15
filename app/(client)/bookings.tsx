@@ -237,10 +237,10 @@ export default function BookingsScreen() {
                 />
                 <View style={styles.chefInfo}>
                   <Text style={styles.chefName}>
-                    {reservation.chef?.user?.name || 'Chef'}
+                    {reservation.chef?.name || 'Chef'}
                   </Text>
                   <Text style={styles.packageName}>
-                    {reservation.package?.name || 'Experience Package'}
+                    {reservation.package?.display_name || reservation.package?.name || 'Experience Package'}
                   </Text>
                 </View>
                 {getStatusBadge(reservation.status)}

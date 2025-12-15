@@ -191,10 +191,10 @@ export default function ReservationDetailScreen() {
           />
           <View style={styles.chefInfo}>
             <Text style={styles.chefName}>
-              {reservation.chef?.user?.name || 'Chef'}
+              {reservation.chef?.name || 'Chef'}
             </Text>
             <Text style={styles.packageName}>
-              {reservation.package?.name || 'Experience Package'}
+              {reservation.package?.display_name || reservation.package?.name || 'Experience Package'}
             </Text>
             <Text style={styles.tapToView}>Tap to view chef profile</Text>
           </View>
@@ -333,7 +333,7 @@ export default function ReservationDetailScreen() {
       <ReviewModal
         visible={reviewModalVisible}
         reservationId={reservationId}
-        chefName={reservation.chef?.user?.name || 'Chef'}
+        chefName={reservation.chef?.name || 'Chef'}
         onClose={() => setReviewModalVisible(false)}
         onSuccess={() => {
           setReviewModalVisible(false);

@@ -37,15 +37,22 @@ export interface Reservation {
   };
   chef?: {
     id: number;
-    user: {
-      name: string;
-    };
+    name: string;
+    email: string | null;
+    phone: string | null;
+    profile_image: string | null;
+    title: string;
   };
   package?: {
     id: number;
     name: string;
+    display_name?: string;
     price: number;
+    price_per_person?: number;
     duration_hours: number;
+    type?: string;
+    courses_count?: number;
+    includes_wine?: boolean;
   };
 }
 

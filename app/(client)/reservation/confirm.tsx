@@ -87,6 +87,10 @@ export default function ConfirmationScreen() {
 
       console.log('✅ Reservation created:', response);
 
+      // Reset loading state before navigation
+      setIsLoading(false);
+      setAcceptTerms(false);
+
       // Navigate to success screen with reservation ID
       router.replace({
         pathname: '/(client)/reservation/success',
