@@ -18,8 +18,8 @@ export default function ClientLayout() {
         headerShown: false,
         tabBarActiveTintColor: Colors.primary,
         tabBarInactiveTintColor: Colors.textSecondary,
-        // Hide tab bar for chef detail and reservation flow screens
-        tabBarStyle: route.name.startsWith('chef/') || route.name.startsWith('reservation/')
+        // Hide tab bar for chef detail, reservation flow, and booking detail screens
+        tabBarStyle: route.name.startsWith('chef/') || route.name.startsWith('reservation/') || route.name.startsWith('booking/')
             ? { display: 'none' }
             : {
                 backgroundColor: Colors.surface,
@@ -91,6 +91,12 @@ export default function ClientLayout() {
       />
       <Tabs.Screen
         name="reservation/success"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="booking/[id]"
         options={{
           href: null,
         }}

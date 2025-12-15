@@ -21,7 +21,10 @@ export const reviewsService = {
    * Create a review for a reservation
    */
   async createReview(data: CreateReviewRequest): Promise<Review> {
-    const response = await api.post<{ review: Review }>('/reviews', data);
+    const response = await api.post<{ review: Review }>(
+      `/reservations/${data.reservation_id}/review`,
+      data
+    );
     return response.data.review;
   },
 
