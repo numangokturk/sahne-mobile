@@ -14,24 +14,27 @@ export default function ClientLayout() {
 
   return (
     <Tabs
-      screenOptions={{
+      screenOptions={({ route }) => ({
         headerShown: false,
         tabBarActiveTintColor: Colors.primary,
         tabBarInactiveTintColor: Colors.textSecondary,
-        tabBarStyle: {
-          backgroundColor: Colors.surface,
-          borderTopColor: Colors.border,
-          borderTopWidth: 1,
-          paddingTop: 8,
-          paddingBottom: insets.bottom > 0 ? insets.bottom : 8,
-          height: 60 + (insets.bottom > 0 ? insets.bottom : 0),
-        },
+        // Hide tab bar for chef detail and reservation flow screens
+        tabBarStyle: route.name.startsWith('chef/') || route.name.startsWith('reservation/')
+            ? { display: 'none' }
+            : {
+                backgroundColor: Colors.surface,
+                borderTopColor: Colors.border,
+                borderTopWidth: 1,
+                paddingTop: 8,
+                paddingBottom: insets.bottom > 0 ? insets.bottom : 8,
+                height: 60 + (insets.bottom > 0 ? insets.bottom : 0),
+              },
         tabBarLabelStyle: {
           fontSize: 10,
           fontWeight: '600',
           letterSpacing: 0.3,
         },
-      }}
+      })}
     >
       <Tabs.Screen
         name="index"
@@ -61,18 +64,35 @@ export default function ClientLayout() {
           tabBarIcon: ({ color }) => <TabIcon name="user" color={color} />,
         }}
       />
+      {/* Hidden routes - accessible via navigation but not in tab bar */}
       <Tabs.Screen
-        name="chef"
+        name="chef/[id]"
         options={{
-          tabBarButton: () => null,
-          headerShown: false,
+          href: null,
         }}
       />
       <Tabs.Screen
-        name="reservation"
+        name="reservation/date"
         options={{
-          tabBarButton: () => null,
-          headerShown: false,
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="reservation/details"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="reservation/confirm"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="reservation/success"
+        options={{
+          href: null,
         }}
       />
     </Tabs>
