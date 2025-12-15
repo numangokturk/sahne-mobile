@@ -15,7 +15,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { Calendar, MapPin, Users, Clock } from 'lucide-react-native';
 import { reservationsService } from '@/src/services';
 import { Reservation } from '@/src/types';
@@ -40,17 +40,28 @@ export default function BookingsScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
+  // Fetch reservations on initial mount
   useEffect(() => {
     fetchReservations();
   }, []);
 
+  // Refresh reservations when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      fetchReservations();
+    }, [])
+  );
+
   const fetchReservations = async () => {
     try {
       setLoading(true);
+      console.log('📅 Fetching reservations...');
       const data = await reservationsService.getMyReservations();
-      setReservations(data);
+      console.log('✅ Reservations fetched:', data?.length || 0);
+      setReservations(data || []);
     } catch (error) {
-      console.error('Error fetching reservations:', error);
+      console.error('❌ Error fetching reservations:', error);
+      setReservations([]);
     } finally {
       setLoading(false);
     }
@@ -63,6 +74,10 @@ export default function BookingsScreen() {
   }, []);
 
   const getFilteredReservations = () => {
+    if (!reservations || reservations.length === 0) {
+      return [];
+    }
+
     const now = new Date();
 
     if (activeTab === 'upcoming') {

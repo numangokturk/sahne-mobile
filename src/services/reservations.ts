@@ -15,23 +15,23 @@ export const reservationsService = {
    * Get all reservations for current user
    */
   async getMyReservations(status?: ReservationStatus): Promise<Reservation[]> {
-    const response = await api.get<{ reservations: Reservation[] }>(
+    const response = await api.get<{ data: Reservation[] }>(
       '/reservations',
       {
         params: status ? { status } : undefined,
       }
     );
-    return response.data.reservations;
+    return response.data.data || [];
   },
 
   /**
    * Get reservation by ID
    */
   async getReservationById(id: number): Promise<Reservation> {
-    const response = await api.get<{ reservation: Reservation }>(
+    const response = await api.get<{ data: Reservation }>(
       `/reservations/${id}`
     );
-    return response.data.reservation;
+    return response.data.data;
   },
 
   /**

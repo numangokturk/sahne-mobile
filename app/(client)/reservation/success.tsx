@@ -27,12 +27,14 @@ export default function SuccessScreen() {
   const insets = useSafeAreaInsets();
 
   const handleViewBookings = () => {
-    // Navigate to bookings tab
+    // Navigate to bookings tab and reset the stack
+    router.dismissAll();
     router.replace('/(client)/bookings');
   };
 
   const handleBackHome = () => {
-    // Navigate to home
+    // Navigate to home and reset the stack
+    router.dismissAll();
     router.replace('/(client)');
   };
 
