@@ -210,7 +210,7 @@ export default function ReservationDetailScreen() {
               <View style={styles.detailContent}>
                 <Text style={styles.detailLabel}>Date</Text>
                 <Text style={styles.detailValue}>
-                  {formatDate(reservation.reservation_date)}
+                  {formatDate(reservation.date)}
                 </Text>
               </View>
             </View>
@@ -220,7 +220,7 @@ export default function ReservationDetailScreen() {
               <View style={styles.detailContent}>
                 <Text style={styles.detailLabel}>Time & Duration</Text>
                 <Text style={styles.detailValue}>
-                  {formatTime(reservation.reservation_date)} •{' '}
+                  {reservation.time} •{' '}
                   {reservation.package?.duration_hours || 3} hours
                 </Text>
               </View>

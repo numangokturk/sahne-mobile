@@ -2,7 +2,6 @@
  * SAHNE - Empty State Component
  * Displays when no content is available
  */
-
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Search } from 'lucide-react-native';
@@ -11,7 +10,7 @@ import { Colors, FontFamily, FontSize, FontWeight, Spacing, LetterSpacing } from
 interface EmptyStateProps {
   title: string;
   description: string;
-  icon?: React.ReactNode;
+  icon?: React.ReactNode | string;
 }
 
 export const EmptyState: React.FC<EmptyStateProps> = ({
@@ -19,10 +18,21 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   description,
   icon,
 }) => {
+  // Render icon - handle string emoji vs ReactNode
+  const renderIcon = () => {
+    if (!icon) {
+      return <Search size={64} color={Colors.textLight} strokeWidth={1.5} />;
+    }
+    if (typeof icon === 'string') {
+      return <Text style={styles.emojiIcon}>{icon}</Text>;
+    }
+    return icon;
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.iconContainer}>
-        {icon || <Search size={64} color={Colors.textLight} strokeWidth={1.5} />}
+        {renderIcon()}
       </View>
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.description}>{description}</Text>
@@ -39,6 +49,9 @@ const styles = StyleSheet.create({
   },
   iconContainer: {
     marginBottom: Spacing.xl,
+  },
+  emojiIcon: {
+    fontSize: 64,
   },
   title: {
     fontFamily: FontFamily.heading,

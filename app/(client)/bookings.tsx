@@ -75,25 +75,45 @@ export default function BookingsScreen() {
 
   const getFilteredReservations = () => {
     if (!reservations || reservations.length === 0) {
+      console.log('⚠️ No reservations to filter');
       return [];
     }
 
     const now = new Date();
+    console.log(`🔍 Filtering ${reservations.length} reservations for ${activeTab} tab`);
+
+    // Log all reservations with their status and dates
+    reservations.forEach((r, index) => {
+      const reservationDateTime = `${r.date}T${r.time || '00:00'}:00`;
+      console.log(`  [${index}] ID:${r.id} Status:${r.status} Date:${r.date} Time:${r.time} DateTime:${reservationDateTime}`);
+    });
 
     if (activeTab === 'upcoming') {
-      return reservations.filter(
-        (r) =>
-          (r.status === 'pending' || r.status === 'confirmed') &&
-          new Date(r.reservation_date) >= now
-      );
+      const filtered = reservations.filter((r) => {
+        // Combine date and time for comparison
+        const reservationDateTime = new Date(`${r.date}T${r.time || '00:00'}:00`);
+        const isUpcoming = reservationDateTime >= now;
+        const isActiveStatus = r.status === 'pending' || r.status === 'confirmed' || r.status === 'chef_confirmed';
+
+        return isActiveStatus && isUpcoming;
+      });
+      console.log(`✅ Upcoming filtered: ${filtered.length} reservations`);
+      return filtered;
     } else {
-      return reservations.filter(
-        (r) =>
+      const filtered = reservations.filter((r) => {
+        const reservationDateTime = new Date(`${r.date}T${r.time || '00:00'}:00`);
+        const isPast = reservationDateTime < now;
+
+        return (
           r.status === 'completed' ||
           r.status === 'cancelled' ||
           r.status === 'rejected' ||
-          (r.status === 'confirmed' && new Date(r.reservation_date) < now)
-      );
+          (r.status === 'confirmed' && isPast) ||
+          (r.status === 'chef_confirmed' && isPast)
+        );
+      });
+      console.log(`✅ Past filtered: ${filtered.length} reservations`);
+      return filtered;
     }
   };
 
@@ -231,13 +251,13 @@ export default function BookingsScreen() {
                 <View style={styles.detailRow}>
                   <Calendar size={16} color={Colors.textSecondary} />
                   <Text style={styles.detailText}>
-                    {formatDate(reservation.reservation_date)}
+                    {formatDate(reservation.date)}
                   </Text>
                 </View>
                 <View style={styles.detailRow}>
                   <Clock size={16} color={Colors.textSecondary} />
                   <Text style={styles.detailText}>
-                    {formatTime(reservation.reservation_date)} •{' '}
+                    {reservation.time} •{' '}
                     {reservation.package?.duration_hours || 3}h
                   </Text>
                 </View>

@@ -3,7 +3,7 @@
  * First step in reservation flow
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -60,11 +60,6 @@ export default function DateSelectionScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [showDatePicker, setShowDatePicker] = useState(Platform.OS === 'ios');
-  const [selectedTime, setSelectedTime] = useState<string | null>(null);
-  const [mealPeriod, setMealPeriod] = useState<'lunch' | 'dinner'>('dinner');
-
   // Calculate minimum date (3 days from now for 72-hour advance booking)
   const minDate = new Date();
   minDate.setDate(minDate.getDate() + 3);
@@ -72,6 +67,19 @@ export default function DateSelectionScreen() {
   // Calculate maximum date (3 months ahead)
   const maxDate = new Date();
   maxDate.setMonth(maxDate.getMonth() + 3);
+
+  const [selectedDate, setSelectedDate] = useState(minDate);
+  const [showDatePicker, setShowDatePicker] = useState(Platform.OS === 'ios');
+  const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [mealPeriod, setMealPeriod] = useState<'lunch' | 'dinner'>('dinner');
+
+  // Reset state when component mounts (fresh start for each reservation)
+  useEffect(() => {
+    console.log('📅 Date selection screen mounted - resetting state');
+    setSelectedDate(minDate);
+    setSelectedTime(null);
+    setMealPeriod('dinner');
+  }, []);
 
   const handleDateChange = (event: any, date?: Date) => {
     if (Platform.OS === 'android') {

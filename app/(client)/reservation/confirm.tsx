@@ -63,6 +63,7 @@ export default function ConfirmationScreen() {
     }
 
     setIsLoading(true);
+    console.log('🔄 Creating reservation...');
 
     try {
       // Prepare reservation data
@@ -79,8 +80,12 @@ export default function ConfirmationScreen() {
         allergies: params.specialRequests || undefined,
       };
 
+      console.log('📤 Sending reservation data:', reservationData);
+
       // Create reservation
       const response = await reservationsService.createReservation(reservationData);
+
+      console.log('✅ Reservation created:', response);
 
       // Navigate to success screen with reservation ID
       router.replace({
@@ -91,7 +96,7 @@ export default function ConfirmationScreen() {
         },
       });
     } catch (error: any) {
-      console.error('Reservation error:', error);
+      console.error('❌ Reservation error:', error);
       alert(error.message || 'Failed to create reservation. Please try again.');
       setIsLoading(false);
     }

@@ -14,10 +14,14 @@ export interface Reservation {
   client_id: number;
   chef_id: number;
   package_id: number;
-  reservation_date: string;
+  date: string; // Date in YYYY-MM-DD format
+  time: string; // Time in HH:MM format
+  reservation_date?: string; // Legacy field, kept for compatibility
   guest_count: number;
   address: string;
+  address_type?: string;
   special_requests: string | null;
+  special_occasion?: string | null;
   status: ReservationStatus;
   total_price: number;
   rejection_reason: string | null;
